@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartKids – Course Management</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { background:linear-gradient(160deg,#e8f4fd,#f8fbff,#e8f4fd); }
+    .page-wrap { max-width:960px; margin:36px auto; padding:0 24px 60px; }
+    .page-header { text-align:center; margin-bottom:28px; }
+    .page-header .icon { font-size:2.5rem; }
+    .page-header h1 { font-family:'Nunito',sans-serif; font-size:1.8rem; font-weight:900; color:var(--blue-mid); }
+    .list-count { font-size:.88rem; color:var(--gray); margin-bottom:20px; font-weight:600; }
+    .courses-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .mgmt-card {
+      background:white; border-radius:16px; border:1px solid var(--border);
+      box-shadow:var(--shadow); padding:16px; position:relative;
+    }
+    .mgmt-thumb {
+      width:100%; height:100px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:2.5rem; margin-bottom:12px;
+    }
+    .mgmt-card h3 { font-size:.9rem; font-weight:700; margin-bottom:2px; }
+    .mgmt-card .cid { font-size:.75rem; color:var(--gray); margin-bottom:12px; }
+    .card-actions { display:flex; gap:8px; }
+    .action-btn {
+      flex:1; padding:6px; border:none; border-radius:8px; cursor:pointer;
+      font-size:.8rem; font-family:'Poppins',sans-serif; font-weight:600;
+      transition:all .2s;
+    }
+    .edit-btn { background:var(--blue-light); color:var(--blue); }
+    .edit-btn:hover { background:var(--blue-mid); color:white; }
+    .del-btn { background:#fee2e2; color:#dc2626; }
+    .del-btn:hover { background:#dc2626; color:white; }
+
+    .add-card {
+      background:white; border-radius:16px; border:2px dashed var(--border);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:200px; cursor:pointer; transition:all .2s; color:var(--gray);
+    }
+    .add-card:hover { border-color:var(--blue-mid); color:var(--blue-mid); transform:scale(1.02); }
+    .add-card .plus { font-size:2.5rem; margin-bottom:8px; }
+    .add-card span { font-size:.88rem; font-weight:700; }
+
+    /* MODAL */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.4);
+      z-index:200; align-items:center; justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:white; border-radius:20px; width:100%; max-width:680px;
+      max-height:90vh; overflow-y:auto; padding:32px; animation:floatUp .3s ease;
+    }
+    .modal h2 { font-family:'Nunito',sans-serif; font-size:1.3rem; font-weight:900; color:var(--blue); margin-bottom:20px; }
+    .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .modal-grid .full { grid-column:1/-1; }
+    .modal-label { font-size:.8rem; font-weight:600; color:var(--gray); margin-bottom:5px; display:block; }
+    .char-hint { font-size:.72rem; color:var(--gray); text-align:right; margin-top:3px; }
+    .modal-actions { display:flex; gap:12px; justify-content:center; margin-top:20px; }
+
+    .toast {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      background:var(--dark); color:white; padding:12px 24px; border-radius:999px;
+      font-size:.88rem; z-index:300; opacity:0; pointer-events:none;
+      transition:opacity .3s;
+    }
+    .toast.show { opacity:1; }
+
+  </style>
+</head>
+<body>
+<nav>
+  <a href="home.html" class="logo">
+      <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
+  </a>
+
+  <div class="search-bar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="text" placeholder="Search Courses" onkeydown="if(event.key==='Enter')window.location='search.html'"/>
+  </div>
+
+  <div class="nav-right">
+    <a href="members.html" class="nav-link">Members</a>
+    <a href="search.html" class="nav-link">COURSES</a>
+    <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+    <a href="admin-login.html" class="nav-shield" title="Logout">➜]</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="icon"><img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 90px; width: auto;"></div>
+    <h1>Courses Management</h1>
+  </div>
+  <div class="list-count" id="countLabel">product List (5)</div>
+  <div class="courses-grid" id="coursesGrid"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">Add New Course Details</h2>
+    <div class="modal-grid">
+      <div>
+        <label class="modal-label">Course Name (max 50 chars)</label>
+        <input type="text" class="form-control-plain" id="f-name" maxlength="50" oninput="updateChar(this,'c-name',50)"/>
+        <div class="char-hint"><span id="c-name">0</span>/50</div>
+      </div>
+      <div>
+        <label class="modal-label">Instructor Name (max 50 chars)</label>
+        <input type="text" class="form-control-plain" id="f-instructor" maxlength="50" oninput="updateChar(this,'c-inst',50)"/>
+        <div class="char-hint"><span id="c-inst">0</span>/50</div>
+      </div>
+      <div>
+        <label class="modal-label">Price (integer xxxx) in baht</label>
+        <input type="number" class="form-control-plain" id="f-price" placeholder="e.g. 2990"/>
+      </div>
+      <div>
+        <label class="modal-label">Release Date (YYYY-MM-DD)</label>
+        <input type="date" class="form-control-plain" id="f-date"/>
+      </div>
+      <div>
+        <label class="modal-label">Category (max 20 chars)</label>
+        <input type="text" class="form-control-plain" id="f-cat" maxlength="20" oninput="updateChar(this,'c-cat',20)"/>
+        <div class="char-hint"><span id="c-cat">0</span>/20</div>
+      </div>
+      <div>
+        <label class="modal-label">Rating (x.x, optional) 0.0 to 5.0</label>
+        <input type="number" class="form-control-plain" id="f-rating" min="0" max="5" step="0.1" placeholder="e.g. 4.5"/>
+      </div>
+      <div class="full">
+        <label class="modal-label">Course Description (max 200 chars)</label>
+        <textarea class="form-control-plain" id="f-desc" maxlength="200" rows="3" oninput="updateChar(this,'c-desc',200)"></textarea>
+        <div class="char-hint"><span id="c-desc">0</span>/200</div>
+      </div>
+      <div class="full">
+        <label class="modal-label">Chapters Covered (max 500 chars)</label>
+        <textarea class="form-control-plain" id="f-chapters" maxlength="500" rows="3" oninput="updateChar(this,'c-ch',500)"></textarea>
+        <div class="char-hint"><span id="c-ch">0</span>/500</div>
+      </div>
+      <div>
+        <label class="modal-label">Image URL (max 200 chars) ✓ Unique</label>
+        <input type="url" class="form-control-plain" id="f-img" maxlength="200" placeholder="https://..."/>
+      </div>
+      <div>
+        <label class="modal-label">Perfect For (max 500 chars)</label>
+        <textarea class="form-control-plain" id="f-perfect" maxlength="500" rows="3" oninput="updateChar(this,'c-pf',500)"></textarea>
+        <div class="char-hint"><span id="c-pf">0</span>/500</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="saveBtn" onclick="saveCourse()">Create Course</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let courses = [
+  { id:'M11345', name:'Mathematics', icon:'📐', bg:'linear-gradient(135deg,#1e3a5f,#2563eb)', instructor:'Prof. Otter', price:2990, cat:'Mathematics', rating:5 },
+  { id:'P11345', name:'Physics', icon:'⚛️', bg:'linear-gradient(135deg,#1e3a4a,#0ea5e9)', instructor:'Prof. Otter', price:2990, cat:'Science', rating:4 },
+  { id:'C0345', name:'Chemical', icon:'🧪', bg:'linear-gradient(135deg,#1a3a2a,#10b981)', instructor:'Prof. Otter', price:2990, cat:'Science', rating:4 },
+  { id:'B11001', name:'Biology', icon:'🌿', bg:'linear-gradient(135deg,#1a3a2a,#16a34a)', instructor:'Prof. Otter', price:2290, cat:'Science', rating:5 },
+  { id:'E10001', name:'English', icon:'📝', bg:'linear-gradient(135deg,#3a2a1a,#d97706)', instructor:'Prof. Otter', price:1890, cat:'Language', rating:5 },
+];
+let editIdx = -1;
+
+function render() {
+  const grid = document.getElementById('coursesGrid');
+  document.getElementById('countLabel').textContent = `product List (${courses.length})`;
+  grid.innerHTML = courses.map((c,i) => `
+    <div class="mgmt-card fade-in">
+      <div class="mgmt-thumb" style="background:${c.bg}">${c.icon}</div>
+      <h3>${c.name}</h3>
+      <div class="cid">${c.id}</div>
+      <div class="card-actions">
+        <button class="action-btn edit-btn" onclick="openEdit(${i})">✏️ Edit</button>
+        <button class="action-btn del-btn" onclick="deleteCourse(${i})">🗑 Delete</button>
+      </div>
+    </div>`).join('') + `
+    <div class="add-card" onclick="openAdd()">
+      <div class="plus">＋</div>
+      <span>Add New</span>
+    </div>`;
+}
+
+function openAdd() {
+  editIdx = -1;
+  document.getElementById('modalTitle').textContent = 'Add New Course Details';
+  document.getElementById('saveBtn').textContent = 'Create Course';
+  ['name','instructor','price','date','cat','rating','desc','chapters','img','perfect'].forEach(k => {
+    const el = document.getElementById('f-'+k);
+    if(el) el.value = '';
+  });
+  document.getElementById('modal').classList.add('open');
+}
+function openEdit(i) {
+  editIdx = i;
+  const c = courses[i];
+  document.getElementById('modalTitle').textContent = `Edit Course Details: [${c.id}]`;
+  document.getElementById('saveBtn').textContent = 'Save Changes';
+  document.getElementById('f-name').value = c.name;
+  document.getElementById('f-instructor').value = c.instructor || '';
+  document.getElementById('f-price').value = c.price || '';
+  document.getElementById('f-cat').value = c.cat || '';
+  document.getElementById('f-rating').value = c.rating || '';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function saveCourse() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Course name is required.'); return; }
+  if (editIdx >= 0) {
+    courses[editIdx].name = name;
+    courses[editIdx].price = parseInt(document.getElementById('f-price').value) || courses[editIdx].price;
+    courses[editIdx].instructor = document.getElementById('f-instructor').value;
+    courses[editIdx].cat = document.getElementById('f-cat').value;
+    courses[editIdx].rating = parseFloat(document.getElementById('f-rating').value) || courses[editIdx].rating;
+    showToast('✅ Course updated!');
+  } else {
+    const icons = ['📐','⚛️','🧪','🌿','📝','🔬','📊','🧬'];
+    const bgs = ['linear-gradient(135deg,#1e3a5f,#2563eb)','linear-gradient(135deg,#1e3a4a,#0ea5e9)','linear-gradient(135deg,#1a3a2a,#10b981)'];
+    courses.push({
+      id: 'C'+Math.random().toString(36).substr(2,5).toUpperCase(),
+      name, icon: icons[Math.floor(Math.random()*icons.length)],
+      bg: bgs[Math.floor(Math.random()*bgs.length)],
+      instructor: document.getElementById('f-instructor').value,
+      price: parseInt(document.getElementById('f-price').value) || 0,
+      cat: document.getElementById('f-cat').value,
+      rating: parseFloat(document.getElementById('f-rating').value) || 0,
+    });
+    showToast('✅ Course created!');
+  }
+  closeModal(); render();
+}
+function deleteCourse(i) {
+  if (confirm(`Delete "${courses[i].name}"?`)) {
+    courses.splice(i,1); render(); showToast('🗑️ Course deleted.');
+  }
+}
+function updateChar(el, spanId, max) {
+  document.getElementById(spanId).textContent = el.value.length;
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+render();
+</script>
+</body>
+</html>
