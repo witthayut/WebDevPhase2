@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartKids – Unlock Your Dream University</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --blue-mid: #3b82f6;
+      --teal: #0ea5e9;
+      --yellow: #fbbf24;
+      --dark: #1e293b;
+      --gray: #64748b;
+      --gray-light: #f1f5f9;
+      --white: #ffffff;
+      --card-bg: #1e293b;
+      --footer-bg: #f8fafc;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--dark);
+      background: var(--white);
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--gray-light);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      gap: 8px;
+      width: 240px;
+    }
+    .search-bar input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: .85rem;
+      color: var(--dark);
+      width: 100%;
+    }
+    .search-bar svg { color: var(--gray); flex-shrink: 0; }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-auth {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gray);
+      text-decoration: none;
+      letter-spacing: .03em;
+    }
+    .nav-auth:hover { color: var(--blue); }
+
+    .toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--blue-mid);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background .3s;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      right: 3px;
+      top: 3px;
+      width: 18px;
+      height: 18px;
+      background: var(--white);
+      border-radius: 50%;
+      transition: transform .3s;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #e0f0ff 0%, #c7e2ff 40%, #dbeafe 100%);
+      border-radius: 0 0 32px 32px;
+      margin: 16px 24px 0;
+      padding: 56px 60px 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+      min-height: 320px;
+    }
+
+    .hero-deco {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .hero-deco span {
+      position: absolute;
+      font-size: 2rem;
+      opacity: .18;
+      animation: floatDeco 6s ease-in-out infinite;
+    }
+    .hero-deco span:nth-child(1) { top: 12%; left: 5%;  animation-delay: 0s; }
+    .hero-deco span:nth-child(2) { top: 60%; left: 8%;  animation-delay: 1s; font-size: 1.4rem; }
+    .hero-deco span:nth-child(3) { top: 20%; left: 50%; animation-delay: 2s; font-size: 1.6rem; }
+    .hero-deco span:nth-child(4) { top: 70%; left: 55%; animation-delay: 0.5s; }
+    .hero-deco span:nth-child(5) { top: 10%; left: 80%; animation-delay: 1.5s; font-size: 1.3rem; }
+    .hero-deco span:nth-child(6) { top: 55%; left: 85%; animation-delay: 2.5s; }
+    @keyframes floatDeco {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(8deg); }
+    }
+
+    .hero-text { position: relative; z-index: 2; max-width: 420px; padding-bottom: 48px; }
+
+    .hero-text h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 900;
+      line-height: 1.2;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+
+    .hero-text p {
+      font-size: .9rem;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--blue-mid);
+      color: var(--white);
+      font-size: .88rem;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: background .25s, transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(59,130,246,.35);
+    }
+    .btn-primary:hover {
+      background: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59,130,246,.4);
+    }
+
+    .hero-image {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+    .hero-image .otter-hero {
+      width: 220px;
+      height: 280px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 8px 20px rgba(37,99,235,.2));
+      animation: bobHero 4s ease-in-out infinite;
+    }
+    @keyframes bobHero {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* ── OTTER SVG placeholder ── */
+    .otter-svg {
+      width: 220px;
+      height: 280px;
+    }
+
+    /* ── ABOUT SECTION ── */
+    .about {
+      padding: 72px 60px;
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .about-img {
+      flex-shrink: 0;
+      width: 180px;
+      text-align: center;
+      position: relative;
+    }
+    .about-img .bulb {
+      font-size: 2.2rem;
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    .about-img .otter-small {
+      width: 160px;
+      border-radius: 20px;
+    }
+
+    .about-content { flex: 1; }
+
+    .about-content h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      text-align: right;
+      margin-bottom: 4px;
+    }
+    .about-content h2 .brand {
+      font-size: 2rem;
+      font-weight: 900;
+      display: block;
+      text-align: right;
+    }
+    .about-content h2 .brand .smart { color: var(--dark); }
+    .about-content h2 .brand .kids { color: var(--blue-mid); }
+
+    .about-content p {
+      font-size: .88rem;
+      color: var(--gray);
+      line-height: 1.8;
+      margin-top: 16px;
+    }
+
+    .arrow-indicator {
+      position: absolute;
+      right: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--teal);
+      font-size: 1.6rem;
+      animation: arrowPulse 2s ease-in-out infinite;
+    }
+    @keyframes arrowPulse {
+      0%,100% { transform: translateY(-50%) translateX(0); }
+      50% { transform: translateY(-50%) translateX(6px); }
+    }
+
+    /* ── COURSES ── */
+    .courses {
+      padding: 0 60px 72px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .courses h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .courses p.sub {
+      font-size: .85rem;
+      color: var(--gray);
+      margin-bottom: 32px;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .course-card {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--white);
+      transition: transform .25s, box-shadow .25s;
+      cursor: pointer;
+    }
+    .course-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(37,99,235,.12);
+    }
+
+    .course-thumb {
+      width: 100%;
+      height: 160px;
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .course-thumb.math { background: linear-gradient(135deg, #1e3a5f, #2563eb); }
+    .course-thumb.physics { background: linear-gradient(135deg, #1e3a4a, #0ea5e9); }
+    .course-thumb.chem { background: linear-gradient(135deg, #1a3a2a, #10b981); }
+
+    .course-info { padding: 16px; }
+
+    .course-info h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 2px;
+    }
+
+    .course-info .code {
+      font-size: .75rem;
+      color: var(--gray);
+      margin-bottom: 10px;
+    }
+
+    .course-info .price {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--footer-bg);
+      border-top: 1px solid var(--border);
+      padding: 40px 60px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--dark);
+      text-decoration: none;
+    }
+    .footer-logo span { color: var(--blue-mid); }
+
+    .footer-contact p {
+      font-size: .83rem;
+      color: var(--gray);
+      line-height: 1.9;
+    }
+    .footer-contact p strong {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .footer-links a {
+      font-size: .83rem;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--blue-mid); }
+
+    /* ── OTTER CHARACTER (SVG inline) ── */
+    .otter-char {
+      font-size: 9rem;
+      line-height: 1;
+      display: block;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.1));
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="#" class="logo">
+      <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
+    </a>
+
+    <div class="search-bar">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Search Courses"/>
+    </div>
+
+    <div class="nav-right">
+      <!-- Login/Signup -->
+      <a href="members.html" class="nav-auth">Members</a>
+      <a href="search.html" class="nav-auth">COURSES</a>
+      <a href="login.html" class="nav-auth">LOG-IN / SIGN-UP</a>
+      <!-- Admin Login -->
+      <a href="admin-login.html" class="AdminLogin">
+      <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-deco">
+      <span>🎓</span>
+      <span>📚</span>
+      <span>⭐</span>
+      <span>✏️</span>
+      <span>🔭</span>
+      <span>📖</span>
+    </div>
+
+    <div class="hero-text">
+      <h1>Unlock Your<br/>Dream University</h1>
+      <p>
+        No matter where you start, the right guidance makes all the difference.<br/>
+        With clear lessons and supportive teachers, your dream university is within reach.
+      </p>
+      <a href="search.html" class="btn-primary">Explore Courses</a> 
+    </div>
+
+    <!-- Character -->
+    <div class="character">
+      <a href="#" class="Character">
+      <img src="../Elements/Character-removebg-preview.png" alt="Character" style="height: 300px; width: auto;">
+      </a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about">
+    <div class="about-img">
+      <span class="bulb" style="height: 50px; width: auto;">💡</span>
+      <a href="#" class="Character">
+      <img src="../Elements/Character-removebg-preview.png" alt="Character" style="height: 200px; width: auto;">
+      </a>
+    </div>
+
+    <div class="about-content" style="position:relative;">
+      <h2>
+        What are the advantages of learning with
+        <span class="brand">
+          <span class="smart">Smart</span><span class="kids">Kids</span>
+        </span>
+      </h2>
+      <p>
+        Choosing a tutoring center is about finding the right "partner" to help you reach your goals faster and more accurately.
+        This is why students trust us with their educational future, offering always up-to-date content and a comprehensive
+        support system for every step of the journey. We provide maximum flexibility and value with double the study time, along
+        with doorstep convenience through free textbook delivery and PDF files, all to ensure your best possible results.
+      </p>
+      <span class="arrow-indicator">◀</span>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="courses" id="courses">
+    <h2>Recommended Courses</h2>
+    <p class="sub">Start your journey to University success with our expert-led courses.</p>
+
+    <div class="courses-grid">
+
+      <div class="course-card">
+        <div class="course-thumb math">📐</div>
+        <div class="course-info">
+          <h3>Mathematics</h3>
+          <div class="code">M11345</div>
+          <div class="price">฿ 2,990</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb physics">⚛️</div>
+        <div class="course-info">
+          <h3>Physics</h3>
+          <div class="code">P11345</div>
+          <div class="price">฿ 2,990</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb chem">🧪</div>
+        <div class="course-info">
+          <h3>Chemical</h3>
+          <div class="code">C0345</div>
+          <div class="price">฿ 2,990</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="logo-footer">
+      <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo for Footer" style="height: 95px; width: auto;">
+    </a>
+
+    <div class="footer-contact">
+      <p><strong>For inquiries, please contact (Admin)</strong></p>
+      <p>Tel xxx-xxx-xxxx</p>
+      <p>From 10:00 AM to 8:00 PM.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="#">Privacy Notice</a>
+      <a href="#">Contact Us</a>
+      <a href="members.html">Team Member</a>
+    </div>
+  </footer>
+
+</body>
+</html>
