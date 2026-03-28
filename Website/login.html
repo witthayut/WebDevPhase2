@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartKids – Login</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { background:linear-gradient(160deg,#e0f0ff,#f0f8ff,#e0f0ff); min-height:100vh; }
+    .bg-deco { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+    .bg-deco span { position:absolute; font-size:2rem; opacity:.1; animation:bob 6s ease-in-out infinite; }
+    .bg-deco span:nth-child(1){top:10%;left:5%;animation-delay:0s;}
+    .bg-deco span:nth-child(2){top:70%;left:8%;animation-delay:1s;}
+    .bg-deco span:nth-child(3){top:20%;right:6%;animation-delay:2s;}
+    .bg-deco span:nth-child(4){top:65%;right:10%;animation-delay:.5s;}
+    .bg-deco span:nth-child(5){top:40%;left:3%;animation-delay:1.5s;font-size:1.4rem;}
+    .bg-deco span:nth-child(6){top:50%;right:4%;animation-delay:2.5s;font-size:1.4rem;}
+    .center-wrap { position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:calc(100vh - 64px); padding:20px; }
+    .back-link { font-size: .9rem; font-weight: 700; color: var(--gray); text-decoration: none; margin-bottom: 16px; transition: color .2s; }
+    .back-link:hover { color: var(--blue-mid); }
+    .auth-card { background:white; border-radius:20px; border:1px solid var(--border); box-shadow:0 8px 32px rgba(37,99,235,.12); padding:36px 40px; width:100%; max-width:440px; animation: floatUp .4s ease; }
+    .auth-title { font-family:'Nunito',sans-serif; font-size:1.8rem; font-weight:900; color:var(--blue-mid); text-align:center; margin-bottom:28px; }
+    .form-group { margin-bottom:18px; }
+    .form-group label { font-size:.82rem; font-weight:600; color:var(--gray); display:block; margin-bottom:6px; }
+    .auth-footer { text-align:center; margin-top:20px; font-size:.84rem; color:var(--gray); }
+    .auth-footer a { color:var(--blue-mid); text-decoration:none; font-weight:600; }
+    .auth-footer a:hover { text-decoration:underline; }
+    .tab-row { display:flex; gap:0; margin-bottom:28px; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+    .tab-btn { flex:1; padding:10px; font-size:.88rem; font-weight:700; border:none; background:var(--gray-light); color:var(--gray); cursor:pointer; font-family:'Poppins',sans-serif; transition:all .2s; }
+    .tab-btn.active { background:var(--blue-mid); color:white; }
+  </style>
+</head>
+<body>
+<div class="bg-deco">
+  <span>🎓</span><span>📚</span><span>⭐</span><span>✏️</span><span>📖</span><span>💡</span>
+</div>
+
+<nav>
+  <a href="Home.html" class="logo">
+    <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
+  </a>
+  <div class="search-bar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="text" id="navSearch" placeholder="Search Courses" 
+           ondblclick="window.location.href='search.html';"
+           onkeydown="if(event.key==='Enter') window.location.href='search.html?q=' + encodeURIComponent(this.value);"/>
+  </div>
+  <div class="nav-right">
+    <a href="members.html" class="nav-link">Members</a>
+    <a href="search.html" class="nav-link">COURSES</a>
+    <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+    <a href="admin-login.html" title="Admin">
+      <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
+    </a>
+  </div>
+</nav>
+
+<div class="center-wrap">
+  <a href="Home.html" class="back-link">‹ Homepage</a>
+  <div class="auth-card">
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-login" onclick="showTab('login')">LOGIN</button>
+      <button class="tab-btn" id="tab-register" onclick="showTab('register')">REGISTER</button>
+    </div>
+
+    <div id="login-form">
+      <h2 class="auth-title">LOGIN</h2>
+      <div class="form-group">
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" class="form-control" placeholder="Username"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-control" id="loginPwd" placeholder="Password"/>
+          <span class="input-eye" onclick="togglePwd('loginPwd')">👁️</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="alert('Login successful! Welcome back.')">LOGIN</button>
+      <div class="auth-footer">
+        <a href="#" onclick="showTab('register')">Register</a> &nbsp;|&nbsp;
+        <a href="admin-login.html">Admin</a>
+      </div>
+    </div>
+
+    <div id="register-form" style="display:none;">
+      <h2 class="auth-title">Register</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group" style="margin-bottom:0;"><div class="input-wrap"><span class="input-icon">👤</span><input type="text" class="form-control" placeholder="First Name"/></div></div>
+        <div class="form-group" style="margin-bottom:0;"><div class="input-wrap"><span class="input-icon">👤</span><input type="text" class="form-control" placeholder="Last Name"/></div></div>
+      </div>
+      <div class="form-group" style="margin-top:12px;"><div class="input-wrap"><span class="input-icon">🆔</span><input type="text" class="form-control" placeholder="UserName"/></div></div>
+      <div class="form-group"><div class="input-wrap"><span class="input-icon">📅</span><input type="date" class="form-control" placeholder="Date Of Birth"/></div></div>
+      <div class="form-group"><div class="input-wrap"><span class="input-icon">✉️</span><input type="email" class="form-control" placeholder="Email"/></div></div>
+      <div class="form-group"><div class="input-wrap"><span class="input-icon">🔒</span><input type="password" class="form-control" id="regPwd" placeholder="Password"/><span class="input-eye" onclick="togglePwd('regPwd')">👁️</span></div></div>
+      <div class="form-group"><div class="input-wrap"><span class="input-icon">🔒</span><input type="password" class="form-control" id="regPwd2" placeholder="Enter Password Again"/><span class="input-eye" onclick="togglePwd('regPwd2')">👁️</span></div></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="alert('Account created! Please log in.')">Register</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(tab) {
+  document.getElementById('login-form').style.display = tab==='login' ? '' : 'none';
+  document.getElementById('register-form').style.display = tab==='register' ? '' : 'none';
+  document.getElementById('tab-login').className = 'tab-btn' + (tab==='login' ? ' active' : '');
+  document.getElementById('tab-register').className = 'tab-btn' + (tab==='register' ? ' active' : '');
+}
+function togglePwd(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+const p = new URLSearchParams(location.search);
+if (p.get('tab') === 'register') showTab('register');
+</script>
+</body>
+</html>

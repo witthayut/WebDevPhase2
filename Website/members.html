@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartKids – Course Details</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .page-wrap { max-width:900px; margin:40px auto; padding:0 24px 60px; }
+    .card-wrap { background:white; border-radius:20px; border:1px solid var(--border); box-shadow:var(--shadow); padding:32px; }
+    .course-title { font-family:'Nunito',sans-serif; font-size:2rem; font-weight:900; color:var(--blue-mid); margin-bottom:24px; }
+    .course-layout { display:grid; grid-template-columns:260px 1fr; gap:32px; }
+    .course-thumb { width:100%; aspect-ratio:4/3; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:5rem; color:white; }
+    .detail-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; font-size:.9rem; }
+    .detail-row strong { color:var(--dark); min-width:80px; }
+    .detail-row span { color:var(--gray); }
+    .buy-btn { background:var(--blue-mid); color:white; border:none; border-radius:999px; padding:10px 32px; font-size:.9rem; font-weight:700; cursor:pointer; font-family:'Poppins',sans-serif; transition:all .2s; margin-top:8px; }
+    .buy-btn:hover { background:var(--blue); transform:translateY(-1px); }
+    .chapter-section { margin-top:28px; }
+    .chapter-section h3 { font-size:1rem; font-weight:700; margin-bottom:14px; }
+    .chapter-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .chapter-list li { font-size:.87rem; color:var(--gray); padding:6px 12px; background:var(--gray-light); border-radius:8px; }
+    .chapter-list li::before { content:'▸ '; color:var(--blue-mid); }
+    .perfect-for { margin-top:20px; padding:16px; background:var(--blue-light); border-radius:12px; font-size:.87rem; color:var(--dark); line-height:1.7; }
+    .perfect-for strong { color:var(--blue); }
+    .course-desc { font-size:.88rem; color:var(--gray); line-height:1.8; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="Home.html" class="logo"><img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;"></a>
+  <div class="search-bar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="navSearch" placeholder="Search Courses" 
+           ondblclick="window.location.href='search.html';"
+           onkeydown="if(event.key==='Enter') window.location.href='search.html?q=' + encodeURIComponent(this.value);"/>
+  </div>
+  <div class="nav-right">
+    <a href="members.html" class="nav-link">Members</a>
+    <a href="search.html" class="nav-link">COURSES</a>
+    <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+    <a href="admin-login.html" title="Admin">
+      <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
+    </a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="card-wrap fade-in">
+    <h1 class="course-title" id="courseTitle">Mathematics</h1>
+    <div class="course-layout">
+      <div>
+        <div class="course-thumb" id="courseThumb" style="background:linear-gradient(135deg,#1e3a5f,#2563eb)">📐</div>
+      </div>
+      <div>
+        <p class="course-desc" id="courseDesc">Maximize your A-Level Math score with Prof. Otter's ultimate crash course.</p>
+        <div class="detail-row">
+          <strong>Rating :</strong>
+          <span class="stars">★★★★★</span><span> 5</span>
+        </div>
+        <div class="detail-row">
+          <strong>Course ID:</strong>
+          <span id="courseID">M12345</span>
+        </div>
+        <div class="detail-row">
+          <strong>Instructor:</strong>
+          <span>Prof. Otter</span>
+        </div>
+        <div class="detail-row">
+          <strong>Category:</strong>
+          <span id="courseCat">Mathematics</span>
+        </div>
+        <button class="buy-btn" onclick="alert('🎉 Course added! Please log in to complete purchase.')">BUY ฿ 2,990</button>
+      </div>
+    </div>
+
+    <div class="chapter-section">
+      <h3>Chapters Covered</h3>
+      <ul class="chapter-list" id="chapterList">
+        <li>Sets</li>
+        <li>Mathematical Logic</li>
+        <li>Real Numbers</li>
+        <li>Relations and Functions</li>
+        <li>Exponential and Logarithmic Functions</li>
+        <li>Matrices</li>
+        <li>Counting Principles and Probability</li>
+        <li>Sequences and Series (Interest and Time Value of Money)</li>
+        <li>Calculus</li>
+        <li>Statistics and Probability Distributions</li>
+      </ul>
+    </div>
+
+    <div class="perfect-for">
+      <strong>Perfect for:</strong> M6 students preparing for A-Level Math 1 who are short on time!
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="Home.html" class="logo"><img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo for Footer" style="height: 95px; width: auto;"></a>
+  <div class="footer-contact">
+    <p><strong>For inquiries, please contact (Admin)</strong></p>
+    <p>Tel xxx-xxx-xxxx</p>
+    <p>From 10:00 AM to 8:00 PM.</p>
+  </div>
+  <div class="footer-links">
+    <a href="#">Privacy Notice</a>
+    <a href="members.html">Team Member</a>
+    <a href="#">Contact Us</a>
+  </div>
+</footer>
+
+<script>
+const params = new URLSearchParams(location.search);
+const name = params.get('name') || 'Mathematics';
+const id = params.get('id') || 'M12345';
+const courses = {
+  'Mathematics': { icon:'📐', bg:'linear-gradient(135deg,#1e3a5f,#2563eb)', cat:'Mathematics', desc:'Maximize your A-Level Math score with Prof. Otter\'s ultimate crash course. We\'ve condensed 10 crucial Additional Math chapters into focused lessons and high-frequency exam questions. Designed specifically for urgent prep, this course gives you exactly what you need to succeed when time is short.' },
+  'Physics':     { icon:'⚛️', bg:'linear-gradient(135deg,#1e3a4a,#0ea5e9)', cat:'Science', desc:'Master Physics concepts from mechanics to electromagnetism. This course covers all major A-Level Physics topics with clear explanations, diagrams, and exam-style questions to boost your confidence and score.' },
+  'Chemical':    { icon:'🧪', bg:'linear-gradient(135deg,#1a3a2a,#10b981)', cat:'Science', desc:'Understand Chemistry deeply — from atomic structure and bonding to organic reactions. Packed with mnemonics, visual aids, and exam walkthroughs so you can tackle any A-Level Chemistry question.' },
+  'Chemistry':   { icon:'🧪', bg:'linear-gradient(135deg,#1a3a2a,#10b981)', cat:'Science', desc:'Understand Chemistry deeply — from atomic structure and bonding to organic reactions. Packed with mnemonics, visual aids, and exam walkthroughs so you can tackle any A-Level Chemistry question.' },
+  'Biology':     { icon:'🌿', bg:'linear-gradient(135deg,#1a3a2a,#16a34a)', cat:'Science', desc:'Explore the living world from cells to ecosystems. This course breaks down complex Biology topics into simple, memorable concepts aligned with A-Level exam requirements.' },
+  'English':     { icon:'📝', bg:'linear-gradient(135deg,#3a2a1a,#d97706)', cat:'Language', desc:'Build strong English skills for university entrance. Covers reading comprehension, writing, grammar, and vocabulary strategies to help you excel in TGAT English components.' },
+};
+const c = courses[name] || courses['Mathematics'];
+document.getElementById('courseTitle').textContent = name;
+document.getElementById('courseID').textContent = id;
+document.getElementById('courseCat').textContent = c.cat;
+document.getElementById('courseDesc').textContent = c.desc;
+const thumb = document.getElementById('courseThumb');
+thumb.style.background = c.bg;
+thumb.textContent = c.icon;
+</script>
+</body>
+</html>
