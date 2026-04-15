@@ -61,7 +61,7 @@
     <div class="form-group">
       <div class="input-wrap">
         <span class="input-icon">👤</span>
-        <input type="text" class="form-control" placeholder="Username" id="adminUser"/>
+        <input type="text" class="form-control" placeholder="Admin ID or Email" id="adminUser"/>
       </div>
     </div>
     <div class="form-group">
@@ -80,11 +80,37 @@ function togglePwd() {
   const el = document.getElementById('adminPwd');
   el.type = el.type === 'password' ? 'text' : 'password';
 }
-function doLogin() {
-  const u = document.getElementById('adminUser').value;
-  const p = document.getElementById('adminPwd').value;
-  if (u && p) { window.location.href = 'admin.html'; }
-  else { alert('Please enter username and password.'); }
+async function doLogin() {
+  const username = document.getElementById("adminUser").value.trim();
+  const password = document.getElementById("adminPwd").value;
+
+  if (!username || !password) {
+    alert("Please enter username and password.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/admin/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Welcome ${data.admin.firstName}!`);
+      window.location.href = "admin.html";
+      return;
+    }
+
+    alert(data.message || "Login failed.");
+  } catch (error) {
+    alert("Cannot connect to the backend server.");
+    console.error(error);
+  }
 }
 </script>
 </body>

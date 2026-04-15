@@ -70,7 +70,7 @@
       <div class="form-group">
         <div class="input-wrap">
           <span class="input-icon">👤</span>
-          <input type="text" class="form-control" placeholder="Username"/>
+          <input type="text" class="form-control" id="loginUser" placeholder="Username or Email"/>
         </div>
       </div>
       <div class="form-group">
@@ -80,7 +80,7 @@
           <span class="input-eye" onclick="togglePwd('loginPwd')">👁️</span>
         </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="alert('Login successful! Welcome back.')">LOGIN</button>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="doUserLogin()">LOGIN</button>
       <div class="auth-footer">
         <a href="#" onclick="showTab('register')">Register</a> &nbsp;|&nbsp;
         <a href="admin-login.html">Admin</a>
@@ -114,6 +114,40 @@ function togglePwd(id) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';
 }
+
+async function doUserLogin() {
+  const username = document.getElementById("loginUser").value.trim();
+  const password = document.getElementById("loginPwd").value;
+
+  if (!username || !password) {
+    alert("Please enter username and password.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Welcome ${data.user.firstName}!`);
+      window.location.href = "home.html";
+      return;
+    }
+
+    alert(data.message || "Login failed.");
+  } catch (error) {
+    alert("Cannot connect to the backend server.");
+    console.error(error);
+  }
+}
+
 const p = new URLSearchParams(location.search);
 if (p.get('tab') === 'register') showTab('register');
 </script>
