@@ -14,6 +14,11 @@ app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
+// Simple test route for debugging
+app.get("/test/:id", (req, res) => {
+  res.json({ id: req.params.id, message: "Test route works!" });
+});
+
 // for test is it can connect to the database and run a simple query
 app.get("/test-db", async (req, res) => {
   try {
@@ -65,10 +70,10 @@ app.post("/api/admin/login", async (req, res) => {
     // Find the admin by either email or adminID.
     // CAST(adminID AS CHAR) lets us compare numeric adminID to a text input field.
     const [rows] = await db.query(
-      `SELECT adminID, fname, lname, email, password, role
+        `SELECT adminID, fname, lname, email, password, role
        FROM adminidinfo
        WHERE email = ? OR CAST(adminID AS CHAR) = ?`,
-      [username, username]
+        [username, username]
     );
 
     if (rows.length === 0) {
@@ -99,9 +104,9 @@ app.post("/api/admin/login", async (req, res) => {
 
       try {
         await db.query(
-          `INSERT INTO adminlog (IDlist, role, adminID, curTime, password)
+            `INSERT INTO adminlog (IDlist, role, adminID, curTime, password)
            VALUES (?, ?, ?, NOW(), ?)`,
-          [logId, admin.role, admin.adminID, admin.password]
+            [logId, admin.role, admin.adminID, admin.password]
         );
         logSaved = true;
       } catch (error) {
@@ -157,10 +162,10 @@ app.post("/api/user/login", async (req, res) => {
   try {
     // Allow the user to sign in with either username or email.
     const [rows] = await db.query(
-      `SELECT username, fname, lname, email, password
+        `SELECT username, fname, lname, email, password
        FROM userinfo
        WHERE username = ? OR email = ?`,
-      [username, username]
+        [username, username]
     );
 
     if (rows.length === 0) {
@@ -189,6 +194,111 @@ app.post("/api/user/login", async (req, res) => {
         lastName: user.lname,
         email: user.email
       }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+});
+
+// ── SEARCH COURSES API ──────────────────────────────────────────────────────
+// GET /api/courses/search
+//
+// Query parameters (all optional):
+//   q        – keyword matched against nameCourse and description
+//   category – exact match on subjectCategory  (e.g. "WebDev", "Coding")
+//   rating   – minimum rating  (e.g. 4  → returns 4.0 and above)
+//   price    – "free" | "paid" | "all"  (default: "all")
+//
+// Returns an array of matching course objects.
+app.get("/api/courses/search", async (req, res) => {
+  const { q = "", category = "", rating = "", price = "all" } = req.query;
+
+  // Build WHERE clauses dynamically so we only JOIN conditions the user sent.
+  const conditions = [];
+  const params = [];
+
+  if (q.trim()) {
+    conditions.push("(nameCourse LIKE ? OR description LIKE ?)");
+    params.push(`%${q.trim()}%`, `%${q.trim()}%`);
+  }
+
+  if (category.trim()) {
+    conditions.push("subjectCategory = ?");
+    params.push(category.trim());
+  }
+
+  if (rating !== "" && !isNaN(Number(rating))) {
+    conditions.push("rating >= ?");
+    params.push(Number(rating));
+  }
+
+  if (price === "free") {
+    conditions.push("price = 0");
+  } else if (price === "paid") {
+    conditions.push("price > 0");
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  try {
+    const [rows] = await db.query(
+        `SELECT idCourse, nameCourse, instructorName, price, releaseDate,
+              rating, description, chapterCovered, subjectCategory, imageOfSubject, perfectFor
+       FROM onlinecourse
+       ${where}
+       ORDER BY rating DESC`,
+        params
+    );
+
+    res.json({ success: true, total: rows.length, courses: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+// GET /api/courses/categories
+// Returns the distinct list of subjectCategory values for the filter dropdown.
+app.get("/api/courses/categories", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+        "SELECT DISTINCT subjectCategory FROM onlinecourse ORDER BY subjectCategory"
+    );
+    res.json({ success: true, categories: rows.map(r => r.subjectCategory) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+// GET /api/courses/:id  
+// Returns one course by its course ID for description.html.
+// MUST be defined LAST, after all exact path routes like /search and /categories
+app.get("/api/courses/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [rows] = await db.query(
+      `SELECT idCourse, nameCourse, instructorName, price, releaseDate,
+              rating, description, chapterCovered, imageOfSubject,
+              subjectCategory, perfectFor
+       FROM onlinecourse
+       WHERE idCourse = ?`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      course: rows[0]
     });
   } catch (error) {
     return res.status(500).json({
