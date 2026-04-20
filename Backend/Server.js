@@ -7,7 +7,18 @@ const db = require("./db");
 const app = express();
 const port = Number(process.env.PORT || 5000);
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:63342",
+    "http://127.0.0.1:63342",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:3000",
+    "http://localhost:8080",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -204,73 +215,6 @@ app.post("/api/user/login", async (req, res) => {
   }
 });
 
-// User registration route for Website/login.html.
-// This route inserts a new user into the userinfo table.
-app.post("/api/user/register", async (req, res) => {
-  const { firstName, lastName, username, dateOfBirth, email, address, password, passwordConfirm } = req.body;
-
-  // Validation
-  if (!firstName || !lastName || !username || !dateOfBirth || !email || !address || !password || !passwordConfirm) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields are required"
-    });
-  }
-
-  if (password !== passwordConfirm) {
-    return res.status(400).json({
-      success: false,
-      message: "Passwords do not match"
-    });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({
-      success: false,
-      message: "Password must be at least 6 characters"
-    });
-  }
-
-  try {
-    // Check if username already exists
-    const [existingUser] = await db.query(
-        "SELECT username FROM userinfo WHERE username = ? OR email = ?",
-        [username, email]
-    );
-
-    if (existingUser.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Username or email already exists"
-      });
-    }
-
-    // Insert new user into userinfo table
-    await db.query(
-        `INSERT INTO userinfo (username, fname, lname, stuDOB, email, stuAddress, password)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [username, firstName, lastName, dateOfBirth, email, address, password]
-    );
-
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: {
-        username: username,
-        firstName: firstName,
-        lastName: lastName,
-        email: email
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: error.message
-    });
-  }
-});
-
 // ── SEARCH COURSES API ──────────────────────────────────────────────────────
 // GET /api/courses/search
 //
@@ -340,7 +284,7 @@ app.get("/api/courses/categories", async (req, res) => {
   }
 });
 
-// GET /api/courses/:id  
+// GET /api/courses/:id
 // Returns one course by its course ID for description.html.
 // MUST be defined LAST, after all exact path routes like /search and /categories
 app.get("/api/courses/:id", async (req, res) => {
@@ -348,12 +292,12 @@ app.get("/api/courses/:id", async (req, res) => {
 
   try {
     const [rows] = await db.query(
-      `SELECT idCourse, nameCourse, instructorName, price, releaseDate,
+        `SELECT idCourse, nameCourse, instructorName, price, releaseDate,
               rating, description, chapterCovered, imageOfSubject,
               subjectCategory, perfectFor
        FROM onlinecourse
        WHERE idCourse = ?`,
-      [id]
+        [id]
     );
 
     if (rows.length === 0) {
@@ -373,6 +317,95 @@ app.get("/api/courses/:id", async (req, res) => {
       message: "Server error",
       error: error.message
     });
+  }
+});
+
+// ── ADMIN COURSE MANAGEMENT API ─────────────────────────────────────────────
+
+// GET /api/admin/courses  – return all courses for the admin grid
+app.get("/api/admin/courses", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+        `SELECT idCourse, nameCourse, instructorName, price, releaseDate,
+              rating, description, chapterCovered, imageOfSubject,
+              subjectCategory, perfectFor
+       FROM onlinecourse
+       ORDER BY idCourse`
+    );
+    res.json({ success: true, courses: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+// POST /api/admin/courses  – create a new course
+app.post("/api/admin/courses", async (req, res) => {
+  const { idCourse, nameCourse, instructorName, price, releaseDate,
+    rating, description, chapterCovered, imageOfSubject,
+    subjectCategory, perfectFor } = req.body;
+
+  if (!idCourse || !nameCourse || !instructorName || price === undefined ||
+      !releaseDate || !description || !chapterCovered || !subjectCategory || !perfectFor) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  try {
+    await db.query(
+        `INSERT INTO onlinecourse
+         (idCourse, nameCourse, instructorName, price, releaseDate,
+          rating, description, chapterCovered, imageOfSubject, subjectCategory, perfectFor)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [idCourse, nameCourse, instructorName, parseInt(price), releaseDate,
+          rating ? parseFloat(rating) : null, description, chapterCovered,
+          imageOfSubject || null, subjectCategory, perfectFor]
+    );
+    res.status(201).json({ success: true, message: "Course created" });
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ success: false, message: "Course ID already exists" });
+    }
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+// PUT /api/admin/courses/:id  – update an existing course
+app.put("/api/admin/courses/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nameCourse, instructorName, price, releaseDate,
+    rating, description, chapterCovered, imageOfSubject,
+    subjectCategory, perfectFor } = req.body;
+
+  try {
+    const [result] = await db.query(
+        `UPDATE onlinecourse
+       SET nameCourse=?, instructorName=?, price=?, releaseDate=?,
+           rating=?, description=?, chapterCovered=?, imageOfSubject=?,
+           subjectCategory=?, perfectFor=?
+       WHERE idCourse=?`,
+        [nameCourse, instructorName, parseInt(price), releaseDate,
+          rating ? parseFloat(rating) : null, description, chapterCovered,
+          imageOfSubject || null, subjectCategory, perfectFor, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+    res.json({ success: true, message: "Course updated" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+// DELETE /api/admin/courses/:id  – delete a course
+app.delete("/api/admin/courses/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [result] = await db.query("DELETE FROM onlinecourse WHERE idCourse = ?", [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+    res.json({ success: true, message: "Course deleted" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 });
 
