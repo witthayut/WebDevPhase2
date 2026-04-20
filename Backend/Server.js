@@ -204,6 +204,73 @@ app.post("/api/user/login", async (req, res) => {
   }
 });
 
+// User registration route for Website/login.html.
+// This route inserts a new user into the userinfo table.
+app.post("/api/user/register", async (req, res) => {
+  const { firstName, lastName, username, dateOfBirth, email, address, password, passwordConfirm } = req.body;
+
+  // Validation
+  if (!firstName || !lastName || !username || !dateOfBirth || !email || !address || !password || !passwordConfirm) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required"
+    });
+  }
+
+  if (password !== passwordConfirm) {
+    return res.status(400).json({
+      success: false,
+      message: "Passwords do not match"
+    });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: "Password must be at least 6 characters"
+    });
+  }
+
+  try {
+    // Check if username already exists
+    const [existingUser] = await db.query(
+        "SELECT username FROM userinfo WHERE username = ? OR email = ?",
+        [username, email]
+    );
+
+    if (existingUser.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Username or email already exists"
+      });
+    }
+
+    // Insert new user into userinfo table
+    await db.query(
+        `INSERT INTO userinfo (username, fname, lname, stuDOB, email, stuAddress, password)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [username, firstName, lastName, dateOfBirth, email, address, password]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        username: username,
+        firstName: firstName,
+        lastName: lastName,
+        email: email
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+});
+
 // ── SEARCH COURSES API ──────────────────────────────────────────────────────
 // GET /api/courses/search
 //
