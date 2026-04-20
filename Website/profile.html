@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartKids – Edit Profile</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { background:linear-gradient(160deg,#e0f0ff,#f0f8ff,#e0f0ff); min-height:100vh; }
+    .bg-deco { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+    .bg-deco span { position:absolute; font-size:2rem; opacity:.1; animation:bob 6s ease-in-out infinite; }
+    .bg-deco span:nth-child(1){top:10%;left:5%;animation-delay:0s;}
+    .bg-deco span:nth-child(2){top:70%;left:8%;animation-delay:1s;}
+    .bg-deco span:nth-child(3){top:20%;right:6%;animation-delay:2s;}
+    .bg-deco span:nth-child(4){top:65%;right:10%;animation-delay:.5s;}
+    .bg-deco span:nth-child(5){top:40%;left:3%;animation-delay:1.5s;font-size:1.4rem;}
+    .bg-deco span:nth-child(6){top:50%;right:4%;animation-delay:2.5s;font-size:1.4rem;}
+    .center-wrap { position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:calc(100vh - 64px); padding:20px; }
+    .back-link { font-size: .9rem; font-weight: 700; color: var(--gray); text-decoration: none; margin-bottom: 16px; transition: color .2s; }
+    .back-link:hover { color: var(--blue-mid); }
+    .auth-card { background:white; border-radius:20px; border:1px solid var(--border); box-shadow:0 8px 32px rgba(37,99,235,.12); padding:36px 40px; width:100%; max-width:540px; animation: floatUp .4s ease; }
+    .auth-title { font-family:'Nunito',sans-serif; font-size:1.8rem; font-weight:900; color:var(--blue-mid); text-align:center; margin-bottom:28px; }
+    .form-group { margin-bottom:18px; }
+    .form-group label { font-size:.82rem; font-weight:600; color:var(--gray); display:block; margin-bottom:6px; }
+    .message { padding:12px; margin-bottom:16px; border-radius:8px; text-align:center; font-weight:600; display:none; }
+    .message.success { background:#d4edda; color:#155724; display:block; }
+    .message.error { background:#f8d7da; color:#721c24; display:block; }
+    .btn-group { display:flex; gap:12px; margin-top:20px; }
+    .btn-secondary { background: var(--gray-light); color:var(--gray); border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; flex:1; }
+    .btn-secondary:hover { background: var(--gray); color:white; }
+  </style>
+</head>
+<body>
+<div class="bg-deco">
+  <span>🎓</span><span>📚</span><span>⭐</span><span>✏️</span><span>📖</span><span>💡</span>
+</div>
+
+<nav>
+  <a href="Home.html" class="logo">
+    <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
+  </a>
+  <div class="search-bar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="text" id="navSearch" placeholder="Search Courses" 
+           ondblclick="window.location.href='search.html';"
+           onkeydown="if(event.key==='Enter') window.location.href='search.html?q=' + encodeURIComponent(this.value);"/>
+  </div>
+  <div class="nav-right">
+    <a href="members.html" class="nav-link">Members</a>
+    <a href="search.html" class="nav-link">COURSES</a>
+    <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+    <a href="admin-login.html" title="Admin">
+      <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
+    </a>
+  </div>
+</nav>
+
+<div class="center-wrap">
+  <a href="Home.html" class="back-link">‹ Homepage</a>
+  <div class="auth-card">
+    <h2 class="auth-title">Edit Profile</h2>
+    
+    <div id="messageBox" class="message"></div>
+
+    <div class="form-group">
+      <label>Username (Cannot Change)</label>
+      <div class="input-wrap">
+        <span class="input-icon">🆔</span>
+        <input type="text" id="profUsername" class="form-control" placeholder="Username" disabled/>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>First Name</label>
+        <div class="input-wrap"><span class="input-icon">👤</span><input type="text" id="profFname" class="form-control" placeholder="First Name"/></div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Last Name</label>
+        <div class="input-wrap"><span class="input-icon">👤</span><input type="text" id="profLname" class="form-control" placeholder="Last Name"/></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Date of Birth</label>
+      <div class="input-wrap"><span class="input-icon">📅</span><input type="date" id="profDOB" class="form-control" placeholder="Date Of Birth"/></div>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <div class="input-wrap"><span class="input-icon">✉️</span><input type="email" id="profEmail" class="form-control" placeholder="Email"/></div>
+    </div>
+
+    <div class="form-group">
+      <label>Address</label>
+      <div class="input-wrap"><span class="input-icon">📍</span><input type="text" id="profAddress" class="form-control" placeholder="Address"/></div>
+    </div>
+
+    <div class="form-group">
+      <label>New Password (Leave blank to keep current)</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input type="password" class="form-control" id="profNewPwd" placeholder="New Password"/>
+        <span class="input-eye" onclick="togglePwd('profNewPwd')">👁️</span>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveProfile()">Save Changes</button>
+      <button class="btn-secondary" onclick="window.location.href='home.html'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function showMessage(message, isSuccess) {
+  const msgBox = document.getElementById('messageBox');
+  msgBox.textContent = message;
+  msgBox.className = 'message ' + (isSuccess ? 'success' : 'error');
+  setTimeout(() => {
+    msgBox.style.display = 'none';
+  }, 5000);
+}
+
+function loadProfile() {
+  const username = localStorage.getItem('currentUsername');
+  
+  if (!username) {
+    alert('Please log in first');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Load user data from localStorage (set during login)
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  
+  document.getElementById('profUsername').value = userData.username || '';
+  document.getElementById('profFname').value = userData.firstName || '';
+  document.getElementById('profLname').value = userData.lastName || '';
+  document.getElementById('profEmail').value = userData.email || '';
+  document.getElementById('profDOB').value = userData.dateOfBirth || '';
+  document.getElementById('profAddress').value = userData.address || '';
+}
+
+async function saveProfile() {
+  const username = localStorage.getItem('currentUsername');
+
+  const firstName = document.getElementById("profFname").value.trim();
+  const lastName = document.getElementById("profLname").value.trim();
+  const dateOfBirth = document.getElementById("profDOB").value;
+  const email = document.getElementById("profEmail").value.trim();
+  const address = document.getElementById("profAddress").value.trim();
+  const password = document.getElementById("profNewPwd").value;
+
+  if (!username) {
+    showMessage('User session lost. Please log in again.', false);
+    return;
+  }
+
+  if (!firstName || !lastName || !email || !address) {
+    showMessage('Please fill in all required fields.', false);
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/user/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        username,
+        firstName, 
+        lastName, 
+        dateOfBirth, 
+        email, 
+        address, 
+        password: password || undefined
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update localStorage with new data
+      localStorage.setItem('userData', JSON.stringify({
+        username,
+        firstName,
+        lastName,
+        email,
+        dateOfBirth,
+        address
+      }));
+      showMessage('Profile updated successfully!', true);
+      setTimeout(() => {
+        window.location.href = 'home.html';
+      }, 2000);
+      return;
+    }
+
+    showMessage(data.message || 'Update failed.', false);
+  } catch (error) {
+    showMessage('Cannot connect to the backend server.', false);
+    console.error(error);
+  }
+}
+
+// Load profile on page load
+window.addEventListener('load', loadProfile);
+</script>
+</body>
+</html>
