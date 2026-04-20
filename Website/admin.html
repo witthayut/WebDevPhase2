@@ -106,6 +106,10 @@
   <div class="modal">
     <h2 id="modalTitle">Add New Course Details</h2>
     <div class="modal-grid">
+      <div id="id-row" class="full">
+        <label class="modal-label">Course ID (max 6 chars, e.g. M11345) ✓ Unique</label>
+        <input type="text" class="form-control-plain" id="f-id" maxlength="6" placeholder="e.g. M11345"/>
+      </div>
       <div>
         <label class="modal-label">Course Name (max 50 chars)</label>
         <input type="text" class="form-control-plain" id="f-name" maxlength="50" oninput="updateChar(this,'c-name',50)"/>
@@ -163,26 +167,51 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let courses = [
-  { id:'M11345', name:'Mathematics', icon:'📐', bg:'linear-gradient(135deg,#1e3a5f,#2563eb)', instructor:'Prof. Otter', price:2990, cat:'Mathematics', rating:5 },
-  { id:'P11345', name:'Physics', icon:'⚛️', bg:'linear-gradient(135deg,#1e3a4a,#0ea5e9)', instructor:'Prof. Otter', price:2990, cat:'Science', rating:4 },
-  { id:'C0345', name:'Chemical', icon:'🧪', bg:'linear-gradient(135deg,#1a3a2a,#10b981)', instructor:'Prof. Otter', price:2990, cat:'Science', rating:4 },
-  { id:'B11001', name:'Biology', icon:'🌿', bg:'linear-gradient(135deg,#1a3a2a,#16a34a)', instructor:'Prof. Otter', price:2290, cat:'Science', rating:5 },
-  { id:'E10001', name:'English', icon:'📝', bg:'linear-gradient(135deg,#3a2a1a,#d97706)', instructor:'Prof. Otter', price:1890, cat:'Language', rating:5 },
-];
-let editIdx = -1;
+const API = 'http://localhost:5000';
 
+// Category → gradient background mapping
+const CAT_BG = {
+  'Mathematics': 'linear-gradient(135deg,#1e3a5f,#2563eb)',
+  'Science':     'linear-gradient(135deg,#1e3a4a,#0ea5e9)',
+  'Chemistry':   'linear-gradient(135deg,#1a3a2a,#10b981)',
+  'Biology':     'linear-gradient(135deg,#1a3a2a,#16a34a)',
+  'Language':    'linear-gradient(135deg,#3a2a1a,#d97706)',
+  'Coding':      'linear-gradient(135deg,#2a1a3a,#7c3aed)',
+  'WebDev':      'linear-gradient(135deg,#1a2a3a,#0891b2)',
+};
+const ICONS = { Mathematics:'📐', Science:'⚛️', Chemistry:'🧪', Biology:'🌿', Language:'📝', Coding:'💻', WebDev:'🌐' };
+const DEFAULT_BG = 'linear-gradient(135deg,#2a2a2a,#555)';
+
+function getBg(cat)  { return CAT_BG[cat]  || DEFAULT_BG; }
+function getIcon(cat){ return ICONS[cat]   || '📚'; }
+
+let courses = [];      // loaded from DB
+let editId  = null;    // idCourse being edited, or null for add
+
+// ── Fetch all courses from the backend ──────────────────────────────────────
+async function loadCourses() {
+  try {
+    const res  = await fetch(`${API}/api/admin/courses`);
+    const data = await res.json();
+    if (data.success) { courses = data.courses; render(); }
+    else showToast('❌ Failed to load courses: ' + data.message);
+  } catch (err) {
+    showToast('❌ Cannot reach server. Is it running?');
+  }
+}
+
+// ── Render the grid ──────────────────────────────────────────────────────────
 function render() {
   const grid = document.getElementById('coursesGrid');
-  document.getElementById('countLabel').textContent = `product List (${courses.length})`;
-  grid.innerHTML = courses.map((c,i) => `
+  document.getElementById('countLabel').textContent = `Product List (${courses.length})`;
+  grid.innerHTML = courses.map(c => `
     <div class="mgmt-card fade-in">
-      <div class="mgmt-thumb" style="background:${c.bg}">${c.icon}</div>
-      <h3>${c.name}</h3>
-      <div class="cid">${c.id}</div>
+      <div class="mgmt-thumb" style="background:${getBg(c.subjectCategory)}">${getIcon(c.subjectCategory)}</div>
+      <h3>${c.nameCourse}</h3>
+      <div class="cid">${c.idCourse}</div>
       <div class="card-actions">
-        <button class="action-btn edit-btn" onclick="openEdit(${i})">✏️ Edit</button>
-        <button class="action-btn del-btn" onclick="deleteCourse(${i})">🗑 Delete</button>
+        <button class="action-btn edit-btn" onclick="openEdit('${c.idCourse}')">✏️ Edit</button>
+        <button class="action-btn del-btn"  onclick="deleteCourse('${c.idCourse}','${c.nameCourse}')">🗑 Delete</button>
       </div>
     </div>`).join('') + `
     <div class="add-card" onclick="openAdd()">
@@ -191,69 +220,118 @@ function render() {
     </div>`;
 }
 
-function openAdd() {
-  editIdx = -1;
-  document.getElementById('modalTitle').textContent = 'Add New Course Details';
-  document.getElementById('saveBtn').textContent = 'Create Course';
+// ── Modal helpers ────────────────────────────────────────────────────────────
+function clearForm() {
   ['name','instructor','price','date','cat','rating','desc','chapters','img','perfect'].forEach(k => {
     const el = document.getElementById('f-'+k);
-    if(el) el.value = '';
+    if (el) el.value = '';
   });
+}
+function openAdd() {
+  editId = null;
+  document.getElementById('modalTitle').textContent = 'Add New Course Details';
+  document.getElementById('saveBtn').textContent = 'Create Course';
+  // Show the ID field for new courses
+  document.getElementById('id-row').style.display = '';
+  clearForm();
   document.getElementById('modal').classList.add('open');
 }
-function openEdit(i) {
-  editIdx = i;
-  const c = courses[i];
-  document.getElementById('modalTitle').textContent = `Edit Course Details: [${c.id}]`;
+function openEdit(id) {
+  const c = courses.find(x => x.idCourse === id);
+  if (!c) return;
+  editId = id;
+  document.getElementById('modalTitle').textContent = `Edit Course: [${id}]`;
   document.getElementById('saveBtn').textContent = 'Save Changes';
-  document.getElementById('f-name').value = c.name;
-  document.getElementById('f-instructor').value = c.instructor || '';
-  document.getElementById('f-price').value = c.price || '';
-  document.getElementById('f-cat').value = c.cat || '';
-  document.getElementById('f-rating').value = c.rating || '';
+  document.getElementById('id-row').style.display = 'none';   // ID is not editable
+  document.getElementById('f-name').value        = c.nameCourse       || '';
+  document.getElementById('f-instructor').value  = c.instructorName   || '';
+  document.getElementById('f-price').value       = c.price            ?? '';
+  document.getElementById('f-date').value        = c.releaseDate ? c.releaseDate.split('T')[0] : '';
+  document.getElementById('f-cat').value         = c.subjectCategory  || '';
+  document.getElementById('f-rating').value      = c.rating           ?? '';
+  document.getElementById('f-desc').value        = c.description      || '';
+  document.getElementById('f-chapters').value    = c.chapterCovered   || '';
+  document.getElementById('f-img').value         = c.imageOfSubject   || '';
+  document.getElementById('f-perfect').value     = c.perfectFor       || '';
   document.getElementById('modal').classList.add('open');
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function saveCourse() {
+
+// ── Save (create or update) ──────────────────────────────────────────────────
+async function saveCourse() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('Course name is required.'); return; }
-  if (editIdx >= 0) {
-    courses[editIdx].name = name;
-    courses[editIdx].price = parseInt(document.getElementById('f-price').value) || courses[editIdx].price;
-    courses[editIdx].instructor = document.getElementById('f-instructor').value;
-    courses[editIdx].cat = document.getElementById('f-cat').value;
-    courses[editIdx].rating = parseFloat(document.getElementById('f-rating').value) || courses[editIdx].rating;
-    showToast('✅ Course updated!');
-  } else {
-    const icons = ['📐','⚛️','🧪','🌿','📝','🔬','📊','🧬'];
-    const bgs = ['linear-gradient(135deg,#1e3a5f,#2563eb)','linear-gradient(135deg,#1e3a4a,#0ea5e9)','linear-gradient(135deg,#1a3a2a,#10b981)'];
-    courses.push({
-      id: 'C'+Math.random().toString(36).substr(2,5).toUpperCase(),
-      name, icon: icons[Math.floor(Math.random()*icons.length)],
-      bg: bgs[Math.floor(Math.random()*bgs.length)],
-      instructor: document.getElementById('f-instructor').value,
-      price: parseInt(document.getElementById('f-price').value) || 0,
-      cat: document.getElementById('f-cat').value,
-      rating: parseFloat(document.getElementById('f-rating').value) || 0,
-    });
-    showToast('✅ Course created!');
+
+  const payload = {
+    nameCourse:      name,
+    instructorName:  document.getElementById('f-instructor').value.trim(),
+    price:           document.getElementById('f-price').value,
+    releaseDate:     document.getElementById('f-date').value,
+    subjectCategory: document.getElementById('f-cat').value.trim(),
+    rating:          document.getElementById('f-rating').value,
+    description:     document.getElementById('f-desc').value.trim(),
+    chapterCovered:  document.getElementById('f-chapters').value.trim(),
+    imageOfSubject:  document.getElementById('f-img').value.trim(),
+    perfectFor:      document.getElementById('f-perfect').value.trim(),
+  };
+
+  try {
+    let res;
+    if (editId) {
+      // UPDATE
+      res = await fetch(`${API}/api/admin/courses/${editId}`, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+    } else {
+      // CREATE – include idCourse
+      payload.idCourse = document.getElementById('f-id').value.trim();
+      if (!payload.idCourse) { alert('Course ID is required.'); return; }
+      res = await fetch(`${API}/api/admin/courses`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+    }
+
+    const data = await res.json();
+    if (data.success) {
+      showToast(editId ? '✅ Course updated!' : '✅ Course created!');
+      closeModal();
+      loadCourses();
+    } else {
+      showToast('❌ ' + data.message);
+    }
+  } catch (err) {
+    showToast('❌ Network error: ' + err.message);
   }
-  closeModal(); render();
 }
-function deleteCourse(i) {
-  if (confirm(`Delete "${courses[i].name}"?`)) {
-    courses.splice(i,1); render(); showToast('🗑️ Course deleted.');
+
+// ── Delete ───────────────────────────────────────────────────────────────────
+async function deleteCourse(id, name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try {
+    const res  = await fetch(`${API}/api/admin/courses/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) { showToast('🗑️ Course deleted.'); loadCourses(); }
+    else showToast('❌ ' + data.message);
+  } catch (err) {
+    showToast('❌ Network error: ' + err.message);
   }
 }
-function updateChar(el, spanId, max) {
+
+function updateChar(el, spanId) {
   document.getElementById(spanId).textContent = el.value.length;
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
-render();
+
+// Load on page start
+loadCourses();
 </script>
 </body>
 </html>
