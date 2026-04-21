@@ -35,6 +35,7 @@
   <span>🎓</span><span>📚</span><span>⭐</span><span>✏️</span><span>📖</span><span>💡</span>
 </div>
 
+<!-- ── Navigation bar ── -->
 <nav>
   <a href="Home.html" class="logo">
     <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
@@ -57,7 +58,8 @@
   </div>
 </nav>
 
-<div class="center-wrap">
+<!-- ── Main content: login/register card ── -->
+<main class="center-wrap">
   <a href="Home.html" class="back-link">‹ Homepage</a>
   <div class="auth-card">
     <div class="tab-row">
@@ -102,7 +104,23 @@
       <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="doUserRegister()">Register</button>
     </div>
   </div>
-</div>
+</main>
+
+<footer>
+  <a href="home.html" class="logo">
+    <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height:95px;width:auto;">
+  </a>
+  <div class="footer-contact">
+    <p><strong>For inquiries, please contact (Admin)</strong></p>
+    <p>Tel xxx-xxx-xxxx</p>
+    <p>From 10:00 AM to 8:00 PM.</p>
+  </div>
+  <div class="footer-links">
+    <a href="#">Privacy Notice</a>
+    <a href="members.html">Team Member</a>
+    <a href="#">Contact Us</a>
+  </div>
+</footer>
 
 <script>
 function showTab(tab) {
@@ -220,6 +238,9 @@ async function doUserRegister() {
   }
 }
 
+if (localStorage.getItem('currentUsername')) {
+  window.location.href = 'home.html';
+}
 const p = new URLSearchParams(location.search);
 if (p.get('tab') === 'register') showTab('register');
 </script>

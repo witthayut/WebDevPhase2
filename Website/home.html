@@ -40,17 +40,52 @@
     .course-card { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: var(--white); transition: transform .25s, box-shadow .25s; cursor: pointer; }
     .course-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(37,99,235,.12); }
     .course-thumb { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; }
-    .course-thumb.math { background: linear-gradient(135deg, #1e3a5f, #2563eb); }
-    .course-thumb.physics { background: linear-gradient(135deg, #1e3a4a, #0ea5e9); }
-    .course-thumb.chem { background: linear-gradient(135deg, #1a3a2a, #10b981); }
     .course-info { padding: 16px; }
     .course-info h3 { font-size: .95rem; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
     .course-info .code { font-size: .75rem; color: var(--gray); margin-bottom: 10px; }
     .course-info .price { font-size: .9rem; font-weight: 700; color: var(--dark); }
+    .courses-loading { text-align:center; color:var(--gray); padding:40px 0; font-size:.9rem; }
+
+    /* ── Study Resources (Public Web Service: Open Library API) ── */
+    .books-section { padding:0 60px 56px; max-width:1100px; margin:0 auto; }
+    .books-section h2 { font-family:'Nunito',sans-serif; font-size:1.6rem; font-weight:900; color:var(--dark); margin-bottom:6px; }
+    .books-section p.sub { font-size:.85rem; color:var(--gray); margin-bottom:20px; }
+    .subject-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
+    .subject-tab {
+      padding:6px 16px; border-radius:999px; border:1.5px solid var(--border);
+      background:var(--gray-light); color:var(--gray); font-size:.8rem; font-weight:700;
+      cursor:pointer; font-family:'Poppins',sans-serif; transition:all .2s;
+    }
+    .subject-tab.active, .subject-tab:hover { background:var(--blue-mid); color:white; border-color:var(--blue-mid); }
+    .books-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .book-card {
+      background:white; border-radius:16px; border:1px solid var(--border);
+      box-shadow:var(--shadow); overflow:hidden; transition:transform .25s, box-shadow .25s;
+      display:flex; flex-direction:column;
+    }
+    .book-card:hover { transform:translateY(-6px); box-shadow:0 12px 32px rgba(37,99,235,.12); }
+    .book-cover {
+      width:100%; height:160px; background:var(--blue-light);
+      display:flex; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .book-cover img { width:100%; height:100%; object-fit:cover; }
+    .book-cover .no-cover { font-size:3.5rem; }
+    .book-info { padding:14px 16px; flex:1; display:flex; flex-direction:column; gap:6px; }
+    .book-info h3 { font-size:.88rem; font-weight:700; color:var(--dark); line-height:1.4;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .book-author { font-size:.76rem; color:var(--gray); }
+    .book-link {
+      display:inline-block; margin-top:auto; padding-top:10px;
+      font-size:.78rem; font-weight:700; color:var(--blue-mid); text-decoration:none;
+    }
+    .book-link:hover { text-decoration:underline; }
+    .books-loading { text-align:center; color:var(--gray); padding:40px 0; font-size:.9rem; grid-column:1/-1; }
+    .books-powered { font-size:.72rem; color:var(--gray); text-align:right; margin-top:12px; }
   </style>
 </head>
 <body>
 
+  <!-- ── Navigation bar: links to all main pages ── -->
   <nav>
     <a href="Home.html" class="logo">
       <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
@@ -68,13 +103,16 @@
     <div class="nav-right">
       <a href="members.html" class="nav-link">Members</a>
       <a href="search.html" class="nav-link">COURSES</a>
-      <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+      <a href="login.html" class="nav-link" id="authNavLink">LOG-IN / SIGN-UP</a>
       <a href="admin-login.html" title="Admin">
         <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
       </a>
     </div>
   </nav>
 
+  <!-- ── Main content area ── -->
+  <main>
+  <!-- ── Hero banner: headline and call-to-action ── -->
   <section class="hero">
     <div class="hero-deco">
       <span>🎓</span><span>📚</span><span>⭐</span><span>✏️</span><span>🔭</span><span>📖</span>
@@ -94,6 +132,7 @@
     </div>
   </section>
 
+  <!-- ── About section: platform advantages ── -->
   <section class="about">
     <div class="about-img">
       <span class="bulb" style="height: 50px; width: auto;">💡</span>
@@ -117,39 +156,184 @@
     </div>
   </section>
 
+  <!-- Study Resources — uses Open Library public API (https://openlibrary.org) -->
+  <section class="books-section">
+    <h2>Study Resources</h2>
+    <p class="sub">Explore real textbooks and study materials for your subjects, powered by Open Library.</p>
+
+    <!-- Subject filter tabs -->
+    <div class="subject-tabs" id="subjectTabs">
+      <button class="subject-tab active" onclick="loadBooks('mathematics')">Mathematics</button>
+      <button class="subject-tab" onclick="loadBooks('physics')">Physics</button>
+      <button class="subject-tab" onclick="loadBooks('chemistry')">Chemistry</button>
+      <button class="subject-tab" onclick="loadBooks('biology')">Biology</button>
+      <button class="subject-tab" onclick="loadBooks('english_language')">English</button>
+      <button class="subject-tab" onclick="loadBooks('computer_science')">Computer Science</button>
+    </div>
+
+    <!-- Book cards rendered by JavaScript -->
+    <div class="books-grid" id="booksGrid">
+      <p class="books-loading">Loading books…</p>
+    </div>
+    <p class="books-powered">Powered by <a href="https://openlibrary.org" target="_blank" rel="noopener" style="color:var(--blue-mid);">Open Library API</a> (openlibrary.org) — free & open</p>
+  </section>
+
+  <!-- ── Recommended Courses: top 3 from database via REST API ── -->
   <section class="courses" id="courses">
     <h2>Recommended Courses</h2>
     <p class="sub">Start your journey to University success with our expert-led courses.</p>
 
-    <div class="courses-grid">
-      <div class="course-card" onclick="window.location.href='description.html?name=Mathematics&id=M11345'">
-        <div class="course-thumb math">📐</div>
-        <div class="course-info">
-          <h3>Mathematics</h3>
-          <div class="code">M11345</div>
-          <div class="price">฿ 2,990</div>
-        </div>
-      </div>
-
-      <div class="course-card" onclick="window.location.href='description.html?name=Physics&id=P11345'">
-        <div class="course-thumb physics">⚛️</div>
-        <div class="course-info">
-          <h3>Physics</h3>
-          <div class="code">P11345</div>
-          <div class="price">฿ 2,990</div>
-        </div>
-      </div>
-
-      <div class="course-card" onclick="window.location.href='description.html?name=Chemical&id=C0345'">
-        <div class="course-thumb chem">🧪</div>
-        <div class="course-info">
-          <h3>Chemical</h3>
-          <div class="code">C0345</div>
-          <div class="price">฿ 2,990</div>
-        </div>
-      </div>
+    <div class="courses-grid" id="coursesGrid">
+      <p class="courses-loading" style="grid-column:1/-1">Loading courses…</p>
     </div>
   </section>
+  </main><!-- end main content -->
+
+  <!-- Public Web Service: Open Library API — fetches real textbooks by subject for students -->
+  <script>
+  /* Update the active tab highlight */
+  function setActiveTab(clickedBtn) {
+    document.querySelectorAll(".subject-tab").forEach(b => b.classList.remove("active"));
+    clickedBtn.classList.add("active");
+  }
+
+  /* Fetch books from Open Library by subject and render cards.
+     API docs: https://openlibrary.org/developers/api
+     Endpoint: GET https://openlibrary.org/subjects/{subject}.json?limit=6 */
+  async function loadBooks(subject) {
+    const grid = document.getElementById("booksGrid");
+
+    // Highlight the active subject tab
+    const tabs = document.querySelectorAll(".subject-tab");
+    tabs.forEach(t => t.classList.toggle("active", t.textContent.toLowerCase().replace(" ", "_") === subject || t.onclick.toString().includes(`'${subject}'`)));
+
+    grid.innerHTML = '<p class="books-loading">Loading books…</p>';
+
+    try {
+      /* Open Library Subjects API — free, no API key required */
+      const res  = await fetch(`https://openlibrary.org/subjects/${subject}.json?limit=6`);
+      const data = await res.json();
+
+      const works = data.works || [];
+
+      if (!works.length) {
+        grid.innerHTML = '<p class="books-loading">No books found for this subject.</p>';
+        return;
+      }
+
+      /* Build up to 3 book cards from the results */
+      grid.innerHTML = works.slice(0, 3).map(book => {
+        const title   = book.title || "Untitled";
+        const authors = book.authors && book.authors.length
+          ? book.authors.map(a => a.name).join(", ")
+          : "Unknown Author";
+
+        /* Cover image from Open Library Covers API */
+        const coverSrc = book.cover_id
+          ? `https://covers.openlibrary.org/b/id/${book.cover_id}-M.jpg`
+          : null;
+
+        const coverHTML = coverSrc
+          ? `<img src="${coverSrc}" alt="${title}" onerror="this.parentElement.innerHTML='<span class=\\'no-cover\\'>📚</span>'">`
+          : `<span class="no-cover">📚</span>`;
+
+        /* Link to the book's page on Open Library */
+        const bookKey  = book.key ? book.key.replace("/works/", "") : "";
+        const bookURL  = bookKey ? `https://openlibrary.org/works/${bookKey}` : "https://openlibrary.org";
+
+        return `
+          <article class="book-card">
+            <div class="book-cover">${coverHTML}</div>
+            <div class="book-info">
+              <h3>${title}</h3>
+              <p class="book-author">by ${authors}</p>
+              <a class="book-link" href="${bookURL}" target="_blank" rel="noopener">View on Open Library →</a>
+            </div>
+          </article>`;
+      }).join("");
+
+    } catch {
+      grid.innerHTML = '<p class="books-loading">Could not load books. Please check your connection.</p>';
+    }
+  }
+
+  /* Load Mathematics books by default when page is ready */
+  window.addEventListener("DOMContentLoaded", () => loadBooks("mathematics"));
+  </script>
+
+  <script>
+  (function () {
+    const username = localStorage.getItem('currentUsername');
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const link = document.getElementById('authNavLink');
+    if (username && link) {
+      const name = userData.firstName || username;
+      link.outerHTML =
+        `<a href="profile.html" class="nav-link">Hi, ${name}</a>` +
+        `<a href="#" class="nav-link" onclick="localStorage.removeItem('currentUsername');localStorage.removeItem('userData');window.location.href='home.html';return false;">Logout</a>`;
+    }
+  })();
+  </script>
+
+  <script>
+  (function () {
+    const CATEGORY_META = {
+      Mathematics: { icon: "📐", bg: "linear-gradient(135deg,#1e3a5f,#2563eb)" },
+      Physics:     { icon: "⚛️",  bg: "linear-gradient(135deg,#1e3a4a,#0ea5e9)" },
+      Chemistry:   { icon: "🧪", bg: "linear-gradient(135deg,#1a3a2a,#10b981)" },
+      Biology:     { icon: "🔬", bg: "linear-gradient(135deg,#1a3a1a,#16a34a)" },
+      History:     { icon: "📜", bg: "linear-gradient(135deg,#3a2a1a,#d97706)" },
+      English:     { icon: "📖", bg: "linear-gradient(135deg,#2a1a3a,#db2777)" },
+      Coding:      { icon: "💻", bg: "linear-gradient(135deg,#1a2a3a,#0ea5e9)" },
+      Design:      { icon: "✏️", bg: "linear-gradient(135deg,#3a2a1a,#d97706)" },
+    };
+    const DEFAULT_META = { icon: "📚", bg: "linear-gradient(135deg,#1e293b,#64748b)" };
+
+    function getMeta(category) {
+      return CATEGORY_META[category] || DEFAULT_META;
+    }
+
+    function formatPrice(price) {
+      return Number(price) === 0 ? "Free" : "฿ " + Number(price).toLocaleString();
+    }
+
+    function renderCard(course) {
+      const meta = getMeta(course.subjectCategory);
+      const url = `description.html?id=${encodeURIComponent(course.idCourse)}&name=${encodeURIComponent(course.nameCourse)}`;
+      const thumbContent = course.imageOfSubject && course.imageOfSubject.startsWith("http")
+        ? `<img src="${course.imageOfSubject}" alt="${course.nameCourse}" style="width:100%;height:100%;object-fit:cover;">`
+        : meta.icon;
+
+      return `
+        <div class="course-card" onclick="window.location.href='${url}'">
+          <div class="course-thumb" style="background:${meta.bg}">${thumbContent}</div>
+          <div class="course-info">
+            <h3>${course.nameCourse}</h3>
+            <div class="code">${course.idCourse}</div>
+            <div class="price">${formatPrice(course.price)}</div>
+          </div>
+        </div>`;
+    }
+
+    async function loadCourses() {
+      const grid = document.getElementById("coursesGrid");
+      try {
+        const res = await fetch("http://localhost:5000/api/courses/search");
+        const data = await res.json();
+        if (!data.success || !data.courses.length) {
+          grid.innerHTML = '<p class="courses-loading" style="grid-column:1/-1">No courses available.</p>';
+          return;
+        }
+        const top3 = data.courses.slice(0, 3);
+        grid.innerHTML = top3.map(renderCard).join("");
+      } catch {
+        grid.innerHTML = '<p class="courses-loading" style="grid-column:1/-1">Could not load courses. Make sure the server is running.</p>';
+      }
+    }
+
+    loadCourses();
+  })();
+  </script>
 
   <footer>
     <a href="Home.html" class="logo-footer">

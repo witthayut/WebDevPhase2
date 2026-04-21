@@ -31,10 +31,12 @@
   </style>
 </head>
 <body>
+<!-- ── Decorative floating background ── -->
 <div class="bg-deco">
   <span>🎓</span><span>📚</span><span>⭐</span><span>✏️</span><span>📖</span><span>💡</span>
 </div>
 
+<!-- ── Navigation bar ── -->
 <nav>
   <a href="Home.html" class="logo">
     <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;">
@@ -50,14 +52,15 @@
   <div class="nav-right">
     <a href="members.html" class="nav-link">Members</a>
     <a href="search.html" class="nav-link">COURSES</a>
-    <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+    <a href="login.html" class="nav-link" id="authNavLink">LOG-IN / SIGN-UP</a>
     <a href="admin-login.html" title="Admin">
       <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
     </a>
   </div>
 </nav>
 
-<div class="center-wrap">
+<!-- ── Main content: edit profile form ── -->
+<main class="center-wrap">
   <a href="Home.html" class="back-link">‹ Homepage</a>
   <div class="auth-card">
     <h2 class="auth-title">Edit Profile</h2>
@@ -112,9 +115,37 @@
       <button class="btn-secondary" onclick="window.location.href='home.html'">Cancel</button>
     </div>
   </div>
-</div>
+</main>
+
+<footer>
+  <a href="home.html" class="logo">
+    <img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height:95px;width:auto;">
+  </a>
+  <div class="footer-contact">
+    <p><strong>For inquiries, please contact (Admin)</strong></p>
+    <p>Tel xxx-xxx-xxxx</p>
+    <p>From 10:00 AM to 8:00 PM.</p>
+  </div>
+  <div class="footer-links">
+    <a href="#">Privacy Notice</a>
+    <a href="members.html">Team Member</a>
+    <a href="#">Contact Us</a>
+  </div>
+</footer>
 
 <script>
+(function () {
+  const username = localStorage.getItem('currentUsername');
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const link = document.getElementById('authNavLink');
+  if (username && link) {
+    const name = userData.firstName || username;
+    link.outerHTML =
+      `<span class="nav-link" style="color:var(--blue-mid);font-weight:700;">Hi, ${name}</span>` +
+      `<a href="#" class="nav-link" onclick="localStorage.removeItem('currentUsername');localStorage.removeItem('userData');window.location.href='home.html';return false;">Logout</a>`;
+  }
+})();
+
 function togglePwd(id) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';

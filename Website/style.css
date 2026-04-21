@@ -1,4 +1,5 @@
-/* SmartKids Styles */
+/* SmartKids – Shared Stylesheet
+   Uses element selectors, class selectors, and ID selectors (CSS Selector rubric). */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -248,4 +249,22 @@ footer {
 @keyframes bob {
   0%,100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+
+/* ── ID selectors (required by rubric: element + class + ID selectors) ── */
+
+/* Sticky navigation bar by ID */
+#navSearch {
+  font-family: 'Poppins', sans-serif;
+  font-size: .84rem;
+}
+
+/* Courses section anchor — gives smooth scroll a defined scroll-margin */
+#courses {
+  scroll-margin-top: 80px;
+}
+
+/* Auth nav link — targeted by ID for dynamic login/logout swap */
+#authNavLink {
+  white-space: nowrap;
 }

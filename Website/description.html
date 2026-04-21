@@ -29,9 +29,12 @@
     .perfect-for { margin-top:20px; padding:16px; background:var(--blue-light); border-radius:12px; font-size:.87rem; color:var(--dark); line-height:1.7; }
     .perfect-for strong { color:var(--blue); }
     .course-desc { font-size:.88rem; color:var(--gray); line-height:1.8; margin-bottom:16px; }
+    .back-link { display:inline-flex; align-items:center; gap:6px; font-size:.88rem; font-weight:700; color:var(--gray); text-decoration:none; margin-bottom:16px; transition:color .2s; }
+    .back-link:hover { color:var(--blue-mid); }
   </style>
 </head>
 <body>
+<!-- ── Navigation bar ── -->
 <nav>
   <a href="home.html" class="logo"><img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo" style="height: 85px; width: auto;"></a>
   <div class="search-bar">
@@ -41,15 +44,18 @@
   <div class="nav-right">
     <a href="members.html" class="nav-link">Members</a>
     <a href="search.html" class="nav-link">COURSES</a>
-    <a href="login.html" class="nav-link">LOG-IN / SIGN-UP</a>
+    <a href="login.html" class="nav-link" id="authNavLink">LOG-IN / SIGN-UP</a>
     <a href="admin-login.html" title="Admin">
       <img src="../Elements/Admin_logo-removebg-preview.png" alt="Admin Logo" style="height: 40px; width: auto;">
     </a>
   </div>
 </nav>
 
-<div class="page-wrap">
-  <div class="card-wrap fade-in">
+<!-- ── Main content: course detail card ── -->
+<main class="page-wrap">
+  <!-- Link back to the Search page -->
+  <a href="search.html" class="back-link">&#8592; Back to Search</a>
+  <article class="card-wrap fade-in">
     <h1 class="course-title" id="courseTitle">Loading course...</h1>
     <div class="course-layout">
       <div>
@@ -87,8 +93,8 @@
     <div class="perfect-for">
       <strong>Perfect for:</strong> <span id="coursePerfectFor">Loading target audience...</span>
     </div>
-  </div>
-</div>
+  </article>
+</main>
 
 <footer>
   <a href="home.html" class="logo"><img src="../Elements/LOGO-removebg-preview.png" alt="SmartKids Logo for Footer" style="height: 95px; width: auto;"></a>
@@ -105,6 +111,18 @@
 </footer>
 
 <script>
+(function () {
+  const username = localStorage.getItem('currentUsername');
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const link = document.getElementById('authNavLink');
+  if (username && link) {
+    const name = userData.firstName || username;
+    link.outerHTML =
+      `<a href="profile.html" class="nav-link">Hi, ${name}</a>` +
+      `<a href="#" class="nav-link" onclick="localStorage.removeItem('currentUsername');localStorage.removeItem('userData');window.location.href='home.html';return false;">Logout</a>`;
+  }
+})();
+
 const API_BASE = "http://localhost:5000";
 const CATEGORY_META = {
   WebDev:   { icon: "🌐", bg: "linear-gradient(135deg,#1e3a5f,#2563eb)" },
