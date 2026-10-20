@@ -143,3 +143,4 @@ The home page fetches real textbooks and study materials from the **Open Library
 - Passwords are stored as plain text in the current database schema (as per Phase I design).
 - The project must be run on localhost; remote deployment requires updating the `API_BASE` constant in each front-end file.
 - Project size is kept under 50 MB; large images are linked by URL rather than stored locally.
+- 
